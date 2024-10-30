@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Intelligence Collection Planner</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #28a745;
+            --background-color: #f0f2f5;
+            --font-color: #333;
+            --high-priority: #ffcccc;
+            --medium-priority: #fff3cd;
+            --low-priority: #d4edda;
+            --delete-color: #dc3545;
+        }
+
+        /* Base styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--font-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
+        main {
+            padding: 1.5rem;
+            flex: 1;
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        input[type="text"],
+        select,
+        button {
+            padding: 0.75rem;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        input[type="text"],
+        select {
+            flex: 1;
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .delete-button {
+            background-color: var(--delete-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8f9fa;
+        }
+
+        .high-priority {
+            background-color: var(--high-priority);
+        }
+
+        .medium-priority {
+            background-color: var(--medium-priority);
+        }
+
+        .low-priority {
+            background-color: var(--low-priority);
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.875rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .input-row {
+                flex-direction: column;
+            }
+
+            table,
+            th,
+            td {
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Intelligence Collection Planner</h1>
+    </header>
+
+    <main>
+        <!-- Hypotheses Section -->
+        <section id="hypotheses">
+            <h2>Hypotheses</h2>
+            <div class="input-row">
+                <input type="text" id="new-hypothesis" placeholder="New Hypothesis" aria-label="New Hypothesis">
+                <button id="add-hypothesis" disabled>Add</button>
+            </div>
+            <small id="hypothesis-error" class="error-message"></small>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Hypothesis</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="hypothesis-table-body"></tbody>
+            </table>
+        </section>
+
+        <!-- PIR Section -->
+        <section id="pir-list">
+            <h2>PIRs</h2>
+            <div class="input-row">
+                <input type="text" id="new-pir" placeholder="New PIR" aria-label="New PIR">
+                <select id="hypothesis-multi-select" multiple aria-label="Linked Hypotheses"></select>
+                <button id="add-pir" disabled>Add</button>
+            </div>
+            <small id="pir-error" class="error-message"></small>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>PIR</th>
+                        <th>Linked Hypotheses</th>
+                        <th>Priority</th>
+                        <th>Delete</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="pir-table-body"></tbody>
+            </table>
+        </section>
+
+        <!-- Collection Tasks Section -->
+        <section id="tasks">
+            <h2>Collection Tasks</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>PIR</th>
+                        <th>Linked Hypotheses</th>
+                        <th>Priority</th>
+                        <th>Data/Information</th>
+                        <th>Source</th>
+                        <th>Delete</th>
+                        <th>Move</th>
+                    </tr>
+                </thead>
+                <tbody id="collection-table-body"></tbody>
+            </table>
+        </section>
+
+        <!-- Final Task List Section -->
+        <section id="final-tasks">
+            <h2>Final Task List</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>PIR</th>
+                        <th>Linked Hypotheses</th>
+                        <th>Priority</th>
+                        <th>Data/Information</th>
+                        <th>Source</th>
+                        <th>Delete</th>
+                        <th>Complete</th>
+                    </tr>
+                </thead>
+                <tbody id="final-task-table-body"></tbody>
+            </table>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            class IntelligencePlannerApp {
+                constructor() {
+                    this.hypotheses = [];
+                    this.pirs = [];
+                    this.collectionTasks = [];
+                    this.finalTasks = [];
+                    this.hypothesisCounter = 1;
+                    this.pirCounter = 1;
+                    this.taskCounter = 1;
+                    this.cacheDOMElements();
+                    this.setupHandlers();
+                    this.renderAll();
+                }
+
+                cacheDOMElements() {
+                    this.hypothesisInput = document.getElementById('new-hypothesis');
+                    this.pirInput = document.getElementById('new-pir');
+                    this.hypothesisSelect = document.getElementById('hypothesis-multi-select');
+                    this.hypothesisTableBody = document.getElementById('hypothesis-table-body');
+                    this.pirTableBody = document.getElementById('pir-table-body');
+                    this.collectionTableBody = document.getElementById('collection-table-body');
+                    this.finalTaskTableBody = document.getElementById('final-task-table-body');
+                    this.hypothesisError = document.getElementById('hypothesis-error');
+                    this.pirError = document.getElementById('pir-error');
+                    this.addHypothesisButton = document.getElementById('add-hypothesis');
+                    this.addPIRButton = document.getElementById('add-pir');
+                }
+
+                setupHandlers() {
+                    this.hypothesisInput.addEventListener('input', () => this.validateHypothesisInput());
+                    this.pirInput.addEventListener('input', () => this.validatePIRInput());
+                    this.hypothesisSelect.addEventListener('change', () => this.validatePIRInput());
+                    this.addHypothesisButton.addEventListener('click', () => this.addHypothesis());
+                    this.addPIRButton.addEventListener('click', () => this.addPIR());
+                }
+
+                validateHypothesisInput() {
+                    const isValid = this.hypothesisInput.value.trim().length > 0;
+                    this.addHypothesisButton.disabled = !isValid;
+                    this.hypothesisError.textContent = isValid ? '' : 'Hypothesis cannot be empty.';
+                }
+
+                validatePIRInput() {
+                    const isTextValid = this.pirInput.value.trim().length > 0;
+                    const isHypothesisSelected = this.hypothesisSelect.selectedOptions.length > 0;
+                    const isValid = isTextValid && isHypothesisSelected;
+                    this.addPIRButton.disabled = !isValid;
+                    if (!isTextValid) {
+                        this.pirError.textContent = 'PIR cannot be empty.';
+                    } else if (!isHypothesisSelected) {
+                        this.pirError.textContent = 'Select at least one hypothesis.';
+                    } else {
+                        this.pirError.textContent = '';
+                    }
+                }
+
+                addHypothesis() {
+                    const text = this.hypothesisInput.value.trim();
+                    if (!text) return;
+                    const hypothesis = { id: `H${this.hypothesisCounter++}`, text };
+                    this.hypotheses.push(hypothesis);
+                    this.hypothesisInput.value = '';
+                    this.addHypothesisButton.disabled = true;
+                    this.renderAll();
+                }
+
+                updateHypothesisTable() {
+                    this.hypothesisTableBody.innerHTML = '';
+                    this.hypotheses.forEach(hypothesis => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${hypothesis.id}</td>
+                            <td><input type="text" value="${hypothesis.text}" onchange="app.editHypothesis('${hypothesis.id}', this.value)"></td>
+                            <td><button class="icon-button delete-button" onclick="app.deleteHypothesis('${hypothesis.id}')">🗑️</button></td>
+                        `;
+                        this.hypothesisTableBody.appendChild(tr);
+                    });
+                }
+
+                editHypothesis(id, newText) {
+                    const hypothesis = this.hypotheses.find(h => h.id === id);
+                    if (hypothesis) {
+                        hypothesis.text = newText;
+                        this.renderAll();
+                    }
+                }
+
+                deleteHypothesis(id) {
+                    this.hypotheses = this.hypotheses.filter(h => h.id !== id);
+                    // Update linked hypotheses in PIRs
+                    this.pirs.forEach(pir => {
+                        pir.linkedHypotheses = pir.linkedHypotheses.filter(hId => hId !== id);
+                    });
+                    // Update linked hypotheses in tasks
+                    this.collectionTasks.forEach(task => {
+                        task.linkedHypotheses = task.linkedHypotheses.filter(hId => hId !== id);
+                    });
+                    this.finalTasks.forEach(task => {
+                        task.linkedHypotheses = task.linkedHypotheses.filter(hId => hId !== id);
+                    });
+                    this.renderAll();
+                }
+
+                updateHypothesisSelect() {
+                    this.hypothesisSelect.innerHTML = '';
+                    this.hypotheses.forEach(hypothesis => {
+                        const option = document.createElement('option');
+                        option.value = hypothesis.id;
+                        option.textContent = `${hypothesis.id}: ${hypothesis.text}`;
+                        this.hypothesisSelect.appendChild(option);
+                    });
+                    this.validatePIRInput();
+                }
+
+                addPIR() {
+                    const text = this.pirInput.value.trim();
+                    const linkedHypotheses = Array.from(this.hypothesisSelect.selectedOptions).map(opt => opt.value);
+
+                    if (!text || !linkedHypotheses.length) return;
+
+                    const pir = { id: `PIR${this.pirCounter++}`, text, linkedHypotheses, priority: '' };
+                    this.pirs.push(pir);
+                    this.pirInput.value = '';
+                    this.hypothesisSelect.selectedIndex = -1;
+                    this.addPIRButton.disabled = true;
+                    this.renderAll();
+                }
+
+                updatePIRTable() {
+                    this.pirTableBody.innerHTML = '';
+                    this.pirs.forEach(pir => {
+                        const linkedHypothesisText = pir.linkedHypotheses
+                            .map(id => {
+                                const hypothesis = this.hypotheses.find(h => h.id === id);
+                                return hypothesis ? `${hypothesis.id}: ${hypothesis.text}` : '';
+                            })
+                            .join(', ');
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${pir.id}</td>
+                            <td><input type="text" value="${pir.text}" onchange="app.editPIR('${pir.id}', this.value)"></td>
+                            <td>${linkedHypothesisText}</td>
+                            <td>
+                                <select onchange="app.updatePriority('${pir.id}', this.value)">
+                                    <option value="">Priority</option>
+                                    <option value="High" ${pir.priority === 'High' ? 'selected' : ''}>High</option>
+                                    <option value="Medium" ${pir.priority === 'Medium' ? 'selected' : ''}>Medium</option>
+                                    <option value="Low" ${pir.priority === 'Low' ? 'selected' : ''}>Low</option>
+                                </select>
+                            </td>
+                            <td><button class="icon-button delete-button" onclick="app.deletePIR('${pir.id}')">🗑️</button></td>
+                            <td><button class="icon-button" onclick="app.createCollectionTask('${pir.id}')">➕</button></td>
+                        `;
+                        this.pirTableBody.appendChild(tr);
+                    });
+                }
+
+                editPIR(id, newText) {
+                    const pir = this.pirs.find(p => p.id === id);
+                    if (pir) {
+                        pir.text = newText;
+                        this.renderAll();
+                    }
+                }
+
+                deletePIR(id) {
+                    this.pirs = this.pirs.filter(p => p.id !== id);
+                    // Remove related collection tasks
+                    this.collectionTasks = this.collectionTasks.filter(t => t.pirId !== id);
+                    this.finalTasks = this.finalTasks.filter(t => t.pirId !== id);
+                    this.renderAll();
+                }
+
+                updatePriority(pirId, priority) {
+                    const pir = this.pirs.find(p => p.id === pirId);
+                    if (pir) {
+                        pir.priority = priority;
+                        this.renderAll();
+                    }
+                }
+
+                createCollectionTask(pirId) {
+                    const pir = this.pirs.find(p => p.id === pirId);
+                    if (!pir || !pir.priority) {
+                        alert('Please set a priority for the PIR before creating a collection task.');
+                        return;
+                    }
+
+                    const task = {
+                        id: `T${this.taskCounter++}`,
+                        pirId: pirId,
+                        pirText: pir.text,
+                        linkedHypotheses: pir.linkedHypotheses,
+                        priority: pir.priority,
+                        dataCategory: '',
+                        source: '',
+                        status: 'Pending'
+                    };
+
+                    this.collectionTasks.push(task);
+                    this.renderAll();
+                }
+
+                updateCollectionTable() {
+                    this.collectionTableBody.innerHTML = '';
+                    this.collectionTasks.forEach(task => {
+                        const priorityClass = task.priority.toLowerCase() + "-priority";
+                        const linkedHypothesisText = task.linkedHypotheses
+                            .map(id => {
+                                const hypothesis = this.hypotheses.find(h => h.id === id);
+                                return hypothesis ? `${hypothesis.id}: ${hypothesis.text}` : '';
+                            })
+                            .join(', ');
+
+                        const tr = document.createElement('tr');
+                        tr.className = priorityClass;
+                        tr.innerHTML = `
+                            <td>${task.id}</td>
+                            <td>${task.pirText}</td>
+                            <td>${linkedHypothesisText}</td>
+                            <td>${task.priority}</td>
+                            <td>
+                                <select onchange="app.updateDataCategory('${task.id}', this.value)">
+                                    <option value="">Select Category</option>
+                                    <option value="Personal Information" ${task.dataCategory === 'Personal Information' ? 'selected' : ''}>Personal Information</option>
+                                    <option value="Corporate Information" ${task.dataCategory === 'Corporate Information' ? 'selected' : ''}>Corporate Information</option>
+                                    <option value="Vehicle Information" ${task.dataCategory === 'Vehicle Information' ? 'selected' : ''}>Vehicle Information</option>
+                                    <option value="Property Information" ${task.dataCategory === 'Property Information' ? 'selected' : ''}>Property Information</option>
+                                    <option value="Incident Information" ${task.dataCategory === 'Incident Information' ? 'selected' : ''}>Incident Information</option>
+                                    <option value="Location Information" ${task.dataCategory === 'Location Information' ? 'selected' : ''}>Location Information</option>
+                                    <option value="Physical Objects" ${task.dataCategory === 'Physical Objects' ? 'selected' : ''}>Physical Objects</option>
+                                    <option value="Virtual Objects" ${task.dataCategory === 'Virtual Objects' ? 'selected' : ''}>Virtual Objects</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="source-select-${task.id}" onchange="app.updateSource('${task.id}', this.value)">
+                                    <option value="">Select Source</option>
+                                    ${this.getSourceOptions(task.dataCategory, task.source)}
+                                </select>
+                            </td>
+                            <td><button class="icon-button delete-button" onclick="app.deleteCollectionTask('${task.id}')">🗑️</button></td>
+                            <td><button class="icon-button" onclick="app.addToFinalTasks('${task.id}')">➕</button></td>
+                        `;
+                        this.collectionTableBody.appendChild(tr);
+                    });
+                }
+
+                updateDataCategory(taskId, category) {
+                    const task = this.collectionTasks.find(t => t.id === taskId);
+                    if (task) {
+                        task.dataCategory = category;
+                        this.renderAll();
+                    }
+                }
+
+                getSourceOptions(category, selectedSource) {
+                    const sources = {
+                        "Personal Information": ["Government Registries", "Credit Bureaus", "Social Security", "Social Media"],
+                        "Corporate Information": ["Business Registries", "Financial Databases", "Public Tender Platforms", "Industry Trade Associations"],
+                        "Vehicle Information": ["National Vehicle Registries", "Insurance Databases", "Classifieds", "Tollroad Passing History", "Parking History", "Automaker Databases", "Customs and Border Databases"],
+                        "Property Information": ["Land and Real Estate Registries", "GIS and Mapping Platforms", "Real Estate Marketplaces", "Municipal Databases"],
+                        "Incident Information": ["Law Enforcement Databases", "Cybersecurity Threat Databases", "Emergency Management Systems", "Public Incident Reporting"],
+                        "Location Information": ["Geolocation Services", "Telecom Providers", "Satellite Imaging Providers", "Public Transport Data"],
+                        "Physical Objects": ["Asset Registration Databases", "Insurance Databases", "Product Serialization Platforms", "Second-Hand Market Platforms"],
+                        "Virtual Objects": ["Domain Name Registries", "IP Address Databases", "Threat Intelligence Platforms", "Digital Certificate Authorities"]
+                    };
+
+                    return (sources[category] || []).map(src => `<option value="${src}" ${src === selectedSource ? 'selected' : ''}>${src}</option>`).join('');
+                }
+
+                updateSource(taskId, source) {
+                    const task = this.collectionTasks.find(t => t.id === taskId);
+                    if (task) {
+                        task.source = source;
+                        this.renderAll();
+                    }
+                }
+
+                deleteCollectionTask(id) {
+                    this.collectionTasks = this.collectionTasks.filter(t => t.id !== id);
+                    this.renderAll();
+                }
+
+                addToFinalTasks(taskId) {
+                    const task = this.collectionTasks.find(t => t.id === taskId);
+                    if (!task) return;
+
+                    this.finalTasks.push(task);
+                    this.collectionTasks = this.collectionTasks.filter(t => t.id !== taskId);
+                    this.renderAll();
+                }
+
+                updateFinalTaskTable() {
+                    this.finalTaskTableBody.innerHTML = '';
+                    this.finalTasks.forEach(task => {
+                        const priorityClass = task.priority.toLowerCase() + "-priority";
+                        const linkedHypothesisText = task.linkedHypotheses
+                            .map(id => {
+                                const hypothesis = this.hypotheses.find(h => h.id === id);
+                                return hypothesis ? `${hypothesis.id}: ${hypothesis.text}` : '';
+                            })
+                            .join(', ');
+
+                        const tr = document.createElement('tr');
+                        tr.className = priorityClass;
+                        tr.innerHTML = `
+                            <td>${task.id}</td>
+                            <td>${task.pirText}</td>
+                            <td>${linkedHypothesisText}</td>
+                            <td>${task.priority}</td>
+                            <td>${task.dataCategory || ''}</td>
+                            <td>${task.source || ''}</td>
+                            <td><button class="icon-button delete-button" onclick="app.deleteFinalTask('${task.id}')">🗑️</button></td>
+                            <td><button class="icon-button" onclick="app.markAsComplete('${task.id}')">${task.status === 'Completed' ? '✅' : '✔️'}</button></td>
+                        `;
+                        this.finalTaskTableBody.appendChild(tr);
+                    });
+                }
+
+                deleteFinalTask(id) {
+                    this.finalTasks = this.finalTasks.filter(t => t.id !== id);
+                    this.renderAll();
+                }
+
+                markAsComplete(taskId) {
+                    const task = this.finalTasks.find(t => t.id === taskId);
+                    if (task) {
+                        task.status = 'Completed';
+                        this.renderAll();
+                    }
+                }
+
+                renderAll() {
+                    this.updateHypothesisTable();
+                    this.updateHypothesisSelect();
+                    this.updatePIRTable();
+                    this.updateCollectionTable();
+                    this.updateFinalTaskTable();
+                }
+            }
+
+            window.app = new IntelligencePlannerApp();
+        });
+    </script>
+</body>
+</html>

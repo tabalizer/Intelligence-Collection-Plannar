@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Intelligence Collection Planner</title>
+    <title>Intelligence Collection Planner v.1</title>
     <style>
         :root {
             --primary-color: #007bff;
@@ -106,6 +106,15 @@
             background-color: #f8f9fa;
         }
 
+        textarea {
+            width: 100%;
+            resize: vertical;
+            min-height: 100px;
+            padding: 0.75rem;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
         .high-priority {
             background-color: var(--high-priority);
         }
@@ -123,6 +132,13 @@
             font-size: 0.875rem;
         }
 
+        footer {
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.875rem;
+            background-color: var(--background-color);
+        }
+
         /* Responsive design */
         @media (max-width: 768px) {
             .input-row {
@@ -136,6 +152,7 @@
             }
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 </head>
 <body>
     <header>
@@ -143,6 +160,38 @@
     </header>
 
     <main>
+        <!-- Case Management Section -->
+        <section id="case-management">
+            <h2>Case Management</h2>
+            <div class="input-row">
+                <input type="text" id="case-number" placeholder="Case Number">
+                <input type="text" id="case-name" placeholder="Case Name">
+            </div>
+            <div class="input-row">
+                <select id="case-type">
+                    <option value="Intelligence">Intelligence</option>
+                    <option value="Investigation">Investigation</option>
+                    <option value="Risk Management">Risk Management</option>
+                </select>
+                <input type="text" id="agent-name" placeholder="Agent Name">
+            </div>
+            <div class="input-row">
+                <input type="text" id="agent-organization" placeholder="Agent Organization">
+                <input type="text" id="stakeholder" placeholder="Stakeholder">
+                <input type="date" id="case-date">
+            </div>
+            <div class="input-row">
+                <textarea id="case-description" placeholder="Case Description"></textarea>
+            </div>
+            <div class="input-row">
+                <button onclick="caseModule.saveCase()">Save Case</button>
+                <button onclick="caseModule.loadCase()">Load Case</button>
+                <button onclick="caseModule.exportData('json')">Export to JSON</button>
+                <button onclick="caseModule.exportData('csv')">Export to CSV</button>
+                <button onclick="caseModule.exportData('pdf')">Export to PDF</button>
+            </div>
+        </section>
+
         <!-- Hypotheses Section -->
         <section id="hypotheses">
             <h2>Hypotheses</h2>
@@ -165,7 +214,7 @@
 
         <!-- PIR Section -->
         <section id="pir-list">
-            <h2>PIRs</h2>
+            <h2>Prioritized Intelligence Requirements (PIRs)</h2>
             <div class="input-row">
                 <input type="text" id="new-pir" placeholder="New PIR" aria-label="New PIR">
                 <select id="hypothesis-multi-select" multiple aria-label="Linked Hypotheses"></select>
@@ -228,6 +277,11 @@
         </section>
     </main>
 
+    <footer>
+        &copy; 2023 @tabalizer. This application is licensed under the GNU General Public License v3.0.  
+        For updates, visit <a href="https://github.com/tabalizer/Intelligence-Collection-Plannar" target="_blank">GitHub</a>.
+    </footer>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             class IntelligencePlannerApp {
@@ -241,6 +295,23 @@
                     this.taskCounter = 1;
                     this.cacheDOMElements();
                     this.setupHandlers();
+                    this.renderAll();
+                }
+
+                getAllData() {
+                    return {
+                        hypotheses: this.hypotheses,
+                        pirs: this.pirs,
+                        collectionTasks: this.collectionTasks,
+                        finalTasks: this.finalTasks
+                    };
+                }
+
+                loadAllData(data) {
+                    this.hypotheses = data.hypotheses || [];
+                    this.pirs = data.pirs || [];
+                    this.collectionTasks = data.collectionTasks || [];
+                    this.finalTasks = data.finalTasks || [];
                     this.renderAll();
                 }
 
@@ -319,11 +390,9 @@
 
                 deleteHypothesis(id) {
                     this.hypotheses = this.hypotheses.filter(h => h.id !== id);
-                    // Update linked hypotheses in PIRs
                     this.pirs.forEach(pir => {
                         pir.linkedHypotheses = pir.linkedHypotheses.filter(hId => hId !== id);
                     });
-                    // Update linked hypotheses in tasks
                     this.collectionTasks.forEach(task => {
                         task.linkedHypotheses = task.linkedHypotheses.filter(hId => hId !== id);
                     });
@@ -398,7 +467,6 @@
 
                 deletePIR(id) {
                     this.pirs = this.pirs.filter(p => p.id !== id);
-                    // Remove related collection tasks
                     this.collectionTasks = this.collectionTasks.filter(t => t.pirId !== id);
                     this.finalTasks = this.finalTasks.filter(t => t.pirId !== id);
                     this.renderAll();
@@ -573,6 +641,121 @@
             }
 
             window.app = new IntelligencePlannerApp();
+
+            class CaseManagementModule {
+                constructor() {
+                    this.cases = [];
+                    this.initCaseDate();
+                }
+
+                initCaseDate() {
+                    const dateField = document.getElementById("case-date");
+                    dateField.value = new Date().toISOString().split("T")[0];
+                }
+
+                getCaseInfo() {
+                    const appData = window.app.getAllData();
+                    return {
+                        caseNumber: document.getElementById("case-number").value.trim(),
+                        caseName: document.getElementById("case-name").value.trim(),
+                        caseType: document.getElementById("case-type").value,
+                        agentName: document.getElementById("agent-name").value.trim(),
+                        agentOrganization: document.getElementById("agent-organization").value.trim(),
+                        stakeholder: document.getElementById("stakeholder").value.trim(),
+                        caseDate: document.getElementById("case-date").value,
+                        caseDescription: document.getElementById("case-description").value.trim(),
+                        appData
+                    };
+                }
+
+                saveCase() {
+                    const caseInfo = this.getCaseInfo();
+                    const fileName = `${caseInfo.caseNumber}_${caseInfo.caseName}.json`;
+                    const fileData = new Blob([JSON.stringify(caseInfo)], { type: "application/json" });
+                    this.downloadFile(fileData, fileName);
+                }
+
+                loadCase() {
+                    const input = document.createElement("input");
+                    input.type = "file";
+                    input.accept = "application/json";
+                    input.onchange = async () => {
+                        const file = input.files[0];
+                        const text = await file.text();
+                        const caseInfo = JSON.parse(text);
+                        this.populateCaseFields(caseInfo);
+                    };
+                    input.click();
+                }
+
+                populateCaseFields(caseInfo) {
+                    document.getElementById("case-number").value = caseInfo.caseNumber;
+                    document.getElementById("case-name").value = caseInfo.caseName;
+                    document.getElementById("case-type").value = caseInfo.caseType;
+                    document.getElementById("agent-name").value = caseInfo.agentName;
+                    document.getElementById("agent-organization").value = caseInfo.agentOrganization;
+                    document.getElementById("stakeholder").value = caseInfo.stakeholder || '';
+                    document.getElementById("case-date").value = caseInfo.caseDate;
+                    document.getElementById("case-description").value = caseInfo.caseDescription || '';
+                    
+                    if (caseInfo.appData) {
+                        window.app.loadAllData(caseInfo.appData);
+                    }
+                }
+
+                downloadFile(data, fileName) {
+                    const url = URL.createObjectURL(data);
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.download = fileName;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                }
+
+                exportData(format) {
+                    const caseInfo = this.getCaseInfo();
+
+                    if (format === 'json') {
+                        const jsonBlob = new Blob([JSON.stringify(caseInfo)], { type: "application/json" });
+                        this.downloadFile(jsonBlob, "cases.json");
+                    } else if (format === 'csv') {
+                        const csv = this.convertToCSV([caseInfo]);
+                        const csvBlob = new Blob([csv], { type: "text/csv" });
+                        this.downloadFile(csvBlob, "cases.csv");
+                    } else if (format === 'pdf') {
+                        const { jsPDF } = window.jspdf;
+                        const doc = new jsPDF();
+
+                        doc.setFontSize(12);
+                        doc.text("Case Details", 10, 10);
+
+                        let currentY = 20;
+                        Object.entries(caseInfo).forEach(([key, value]) => {
+                            if (typeof value !== 'object') {
+                                doc.text(`${key}: ${value}`, 10, currentY);
+                                currentY += 10;
+                            } else {
+                                doc.text(`${key}:`, 10, currentY);
+                                currentY += 10;
+                                Object.entries(value).forEach(([subKey, subValue]) => {
+                                    doc.text(`  ${subKey}: ${JSON.stringify(subValue)}`, 15, currentY);
+                                    currentY += 10;
+                                });
+                            }
+                        });
+
+                        doc.save("case_details.pdf");
+                    }
+                }
+
+                convertToCSV(data) {
+                    const headers = Object.keys(data[0]).join(",");
+                    const rows = data.map(obj => Object.values(obj).join(","));
+                    return [headers, ...rows].join("\n");
+                }
+            }
+
+            window.caseModule = new CaseManagementModule();
         });
     </script>
 </body>

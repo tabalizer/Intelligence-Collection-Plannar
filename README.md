@@ -1,53 +1,82 @@
+Here’s the corrected `README.md` file for the Intelligence Collection Planner app:
+
+```markdown
 # Intelligence Collection Planner
 
-**Intelligence Collection Planner** is a lightweight, web-based tool for organizing and managing intelligence collection tasks. With this tool, users can create and link hypotheses to intelligence requirements (PIRs), assign priority levels, and oversee tasks from the planning stage to completion. The application is built with HTML, CSS, and JavaScript and requires no external dependencies, making it easy to set up and customize.
+An interactive web application for managing and analyzing intelligence collection plans, designed to streamline case management, prioritize intelligence requirements (PIRs), and track hypotheses, tasks, and final tasks.
 
 ## Features
 
-- **Hypothesis Management:** Create, edit, and delete hypotheses, and link them to PIRs.
-- **PIR Tracking:** Add and prioritize intelligence requirements (PIRs) with flexible linking to multiple hypotheses.
-- **Collection Task Workflow:** Progress tasks through stages — from initial collection to a final task list.
-- **Responsive Design:** Works seamlessly across different screen sizes.
-- **No Dependencies:** Pure HTML, CSS, and JavaScript, with zero external libraries required.
+- **Case Management**: Manage details for each case, including case number, name, type, agent information, stakeholder, case date, and description.
+- **Hypotheses Management**: Add, edit, and delete hypotheses linked to each case.
+- **PIR Management**: Create prioritized intelligence requirements (PIRs) connected to hypotheses and assign priorities.
+- **Task Tracking**: Organize collection tasks associated with PIRs, track their sources, data categories, and priorities.
+- **Final Task List**: Review and organize final tasks, marking them as completed when done.
+- **Export Capabilities**: Save case data in JSON, CSV, and PDF formats for easy sharing and archiving.
+
+## Technologies
+
+- **HTML & CSS**: For layout and styling.
+- **JavaScript**: For interactive functionality.
+- **[jsPDF](https://github.com/parallax/jsPDF)**: For generating PDF files.
 
 ## Getting Started
 
-### Installation
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/tabalizer/Intelligence-Collection-Plannar.git
+   ```
+2. Open `index.html` in your web browser to start using the app.
 
-1. Clone the repository:
+## Usage
 
-    ```bash
-    git clone https://github.com/yourusername/intelligence-collection-planner.git
-    ```
+1. **Case Management**: Enter case details, including stakeholder and description.
+2. **Hypotheses**: Manage hypotheses for each case in the Hypotheses section.
+3. **PIR Management**: Link hypotheses to PIRs and assign priorities.
+4. **Tasks and Final Tasks**: Manage tasks associated with each case, tracking priority, source, and status.
+5. **Export**: Use export buttons to download case data in JSON, CSV, or PDF formats.
 
-2. Open the `index.html` file in your preferred web browser:
+### Screenshots
 
-    ```bash
-    open intelligence-collection-planner/index.html
-    ```
-
-### Usage
-
-1. **Add Hypotheses** - Enter a new hypothesis in the input field and click "Add."
-2. **Create PIRs** - Enter a new PIR, link it to one or more hypotheses, and set its priority.
-3. **Manage Tasks** - Create collection tasks and move them through stages from collection to the final task list.
-4. **Prioritize and Organize** - Use in-app options to set task priorities and organize linked hypotheses.
-
-## Contributing
-
-Contributions are welcome! Please fork the repository and submit a pull request for any improvements, features, or fixes.
+![Screenshot of the Case Management Module](path/to/screenshot.png)  
+*(Add screenshots here if needed)*
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the GNU General Public License v3.0. See the full license in the [LICENSE](https://www.gnu.org/licenses/gpl-3.0.en.html) file.
 
-## Future Improvements
-
-- Data persistence (localStorage or backend integration).
-- Advanced filtering and sorting options.
-- Drag-and-drop interface for task organization.
-- Collaboration and user authentication.
+&copy; 2023 @tabalizer. Visit the [GitHub repository](https://github.com/tabalizer/Intelligence-Collection-Plannar) for updates.
 
 ---
 
-Enjoy planning with **Intelligence Collection Planner**! For any questions, feel free to contact us.
+## Contributions
+
+Contributions are welcome! To contribute:
+
+1. Fork the repository.
+2. Create your feature branch:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+3. Commit your changes:
+   ```bash
+   git commit -m "Add your feature"
+   ```
+4. Push to the branch:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+5. Open a pull request.
+
+## Support
+
+If you have any issues or questions, please open an issue in the [GitHub issues section](https://github.com/tabalizer/Intelligence-Collection-Plannar/issues).
+
+---
+
+### Acknowledgments
+
+Special thanks to the developers of jsPDF for the PDF generation functionality used in this app.
+```
+
+This README file includes all necessary sections for a well-documented GitHub project. Be sure to replace `"path/to/screenshot.png"` with the actual path if you add screenshots.

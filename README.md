@@ -1,6 +1,5 @@
 Here’s the corrected `README.md` file for the Intelligence Collection Planner app:
 
-```markdown
 # Intelligence Collection Planner
 
 An interactive web application for managing and analyzing intelligence collection plans, designed to streamline case management, prioritize intelligence requirements (PIRs), and track hypotheses, tasks, and final tasks.
@@ -35,11 +34,6 @@ An interactive web application for managing and analyzing intelligence collectio
 3. **PIR Management**: Link hypotheses to PIRs and assign priorities.
 4. **Tasks and Final Tasks**: Manage tasks associated with each case, tracking priority, source, and status.
 5. **Export**: Use export buttons to download case data in JSON, CSV, or PDF formats.
-
-### Screenshots
-
-![Screenshot of the Case Management Module](path/to/screenshot.png)  
-*(Add screenshots here if needed)*
 
 ## License
 

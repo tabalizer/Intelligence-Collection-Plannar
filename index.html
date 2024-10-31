@@ -194,7 +194,7 @@
 
         <!-- Hypotheses Section -->
         <section id="hypotheses">
-            <h2>Hypotheses</h2>
+            <h2>General Information Requirements (GIR) & Hypotheses</h2>
             <div class="input-row">
                 <input type="text" id="new-hypothesis" placeholder="New Hypothesis" aria-label="New Hypothesis">
                 <button id="add-hypothesis" disabled>Add</button>
@@ -524,13 +524,12 @@
                                 <select onchange="app.updateDataCategory('${task.id}', this.value)">
                                     <option value="">Select Category</option>
                                     <option value="Personal Information" ${task.dataCategory === 'Personal Information' ? 'selected' : ''}>Personal Information</option>
-                                    <option value="Corporate Information" ${task.dataCategory === 'Corporate Information' ? 'selected' : ''}>Corporate Information</option>
+                                    <option value="Business Information" ${task.dataCategory === 'Business Information' ? 'selected' : ''}>Business Information</option>
                                     <option value="Vehicle Information" ${task.dataCategory === 'Vehicle Information' ? 'selected' : ''}>Vehicle Information</option>
                                     <option value="Property Information" ${task.dataCategory === 'Property Information' ? 'selected' : ''}>Property Information</option>
+                                    <option value="Location Data" ${task.dataCategory === 'Location Data' ? 'selected' : ''}>Location Data</option>
+                                    <option value="Cyber & Digital Objects" ${task.dataCategory === 'Cyber & Digital Objects' ? 'selected' : ''}>Cyber & Digital Objects</option>
                                     <option value="Incident Information" ${task.dataCategory === 'Incident Information' ? 'selected' : ''}>Incident Information</option>
-                                    <option value="Location Information" ${task.dataCategory === 'Location Information' ? 'selected' : ''}>Location Information</option>
-                                    <option value="Physical Objects" ${task.dataCategory === 'Physical Objects' ? 'selected' : ''}>Physical Objects</option>
-                                    <option value="Virtual Objects" ${task.dataCategory === 'Virtual Objects' ? 'selected' : ''}>Virtual Objects</option>
                                 </select>
                             </td>
                             <td>
@@ -556,16 +555,92 @@
 
                 getSourceOptions(category, selectedSource) {
                     const sources = {
-                        "Personal Information": ["Government Registries", "Credit Bureaus", "Social Security", "Social Media"],
-                        "Corporate Information": ["Business Registries", "Financial Databases", "Public Tender Platforms", "Industry Trade Associations"],
-                        "Vehicle Information": ["National Vehicle Registries", "Insurance Databases", "Classifieds", "Tollroad Passing History", "Parking History", "Automaker Databases", "Customs and Border Databases"],
-                        "Property Information": ["Land and Real Estate Registries", "GIS and Mapping Platforms", "Real Estate Marketplaces", "Municipal Databases"],
-                        "Incident Information": ["Law Enforcement Databases", "Cybersecurity Threat Databases", "Emergency Management Systems", "Public Incident Reporting"],
-                        "Location Information": ["Geolocation Services", "Telecom Providers", "Satellite Imaging Providers", "Public Transport Data"],
-                        "Physical Objects": ["Asset Registration Databases", "Insurance Databases", "Product Serialization Platforms", "Second-Hand Market Platforms"],
-                        "Virtual Objects": ["Domain Name Registries", "IP Address Databases", "Threat Intelligence Platforms", "Digital Certificate Authorities"]
+                        "Personal Information": [
+                            "Government Registries",
+                            "Credit Bureaus",
+                            "Legal & Court Records",
+                            "Social Media & Search Tools",
+                            "Data Aggregators",
+                            "Biometric Databases",
+                            "Employment Records",
+                            "Healthcare Databases",
+                        ],
+                        "Business Information": [
+                            "Business Registries",
+                            "Financial Data Services",
+                            "Legal & Court Records",
+                            "Industry Trade Associations",
+                            "Public Tender & Contract Platforms",
+                            "Business News Archives",
+                            "Supply Chain Databases",
+                            "Corporate Filings",
+                            "Commercial Credit Agencies"
+                        ],
+                        "Vehicle Information": [
+                            "Vehicle Registries",
+                            "Insurance Databases",
+                            "Legal & Court Records",
+                            "National Vehicle Registries",
+                            "Automaker Databases",
+                            "Movement Tracking History",
+                            "Customs and Border Databases",
+                            "Fleet Management Systems",
+                            "Traffic Violation Records"
+                        ],
+                        "Property Information": [
+                            "Real Estate & Land Registries",
+                            "Real Estate Marketplaces",
+                            "GIS & Mapping Tools",
+                            "Legal & Court Records",
+                            "Utility Records",
+                            "Land Use Databases",
+                            "Building Permit Databases"
+                        ],
+                        "Location Data": [
+                            "Geolocation & Mapping Services",
+                            "Satellite Imaging Providers",
+                            "Telecom Providers",
+                            "Public Records & Registries",
+                            "Social Media Geotagging",
+                            "News & Event Databases",
+                            "Drone Surveillance Feeds",
+                            "Traffic Camera Feeds"
+                        ],
+                        "Cyber & Digital Objects": [
+                            "Cyber Threat Intelligence Platforms",
+                            "Domain and IP Lookup Services",
+                            "Data Breach Databases",
+                            "Network Analysis Tools",
+                            "Digital Certificate Authorities",
+                            "Dark Web & Social Media Monitoring",
+                            "Email & Communication Analysis Tools",
+                            "Online Marketplaces & Forums"
+                        ],
+                        "Incident Information": [
+                            "Law Enforcement Databases",
+                            "Cybersecurity Threat Databases",
+                            "Emergency Management Systems",
+                            "Public Incident Reporting",
+                            "Legal & Court Records",
+                            "Incident News Archives",
+                            "Social Media Reporting Tools",
+                            "First Responder Reports",
+                            "Crisis Mapping Platforms"
+                        ],
+                        "Human Intelligence (HUMINT)": [
+                            "Confidential Informants",
+                            "Witness Statements",
+                            "Surveillance Reports",
+                            "Field Agent Reports"
+                        ],
+                        "Open Source Intelligence (OSINT)": [
+                            "Public Websites & News Platforms",
+                            "Government Publications",
+                            "Academic Research Papers",
+                            "NGO & Non-Profit Reports",
+                            "Social Media Analysis Platforms"
+                        ]
                     };
-
                     return (sources[category] || []).map(src => `<option value="${src}" ${src === selectedSource ? 'selected' : ''}>${src}</option>`).join('');
                 }
 

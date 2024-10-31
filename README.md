@@ -30,9 +30,9 @@ An interactive web application for managing and analyzing intelligence collectio
 ## Usage
 
 1. **Case Management**: Enter case details, including stakeholder and description.
-2. **Hypotheses**: Manage hypotheses for each case in the Hypotheses section.
-3. **PIR Management**: Link hypotheses to PIRs and assign priorities.
-4. **Tasks and Final Tasks**: Manage tasks associated with each case, tracking priority, source, and status.
+2. **GIR & Hypotheses**: Manage Genereal Information Requirements & Hypotheses for each case in the GIR & Hypotheses section.
+3. **PIR Management**: Link GIR & Hypotheses to PIRs and assign priorities.
+4. **Tasks and Final Tasks**: Manage tasks associated with each case, tracking priority, adding data and source, and status.
 5. **Export**: Use export buttons to download case data in JSON, CSV, or PDF formats.
 
 ## License

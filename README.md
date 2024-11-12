@@ -4,6 +4,8 @@ Here’s the corrected `README.md` file for the Intelligence Collection Planner 
 
 An interactive web application for managing and analyzing intelligence collection plans, designed to streamline case management, prioritize intelligence requirements (PIRs), and track hypotheses, tasks, and final tasks.
 
+You can preview and try the web application here: https://tabalizer.github.io/Intelligence-Collection-Plannar/
+
 ## Features
 
 - **Case Management**: Manage details for each case, including case number, name, type, agent information, stakeholder, case date, and description.

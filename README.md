@@ -39,7 +39,7 @@ An interactive web application for managing and analyzing intelligence collectio
 
 This project is licensed under the GNU General Public License v3.0. See the full license in the [LICENSE](https://www.gnu.org/licenses/gpl-3.0.en.html) file.
 
-&copy; 2023 @tabalizer. Visit the [GitHub repository](https://github.com/tabalizer/Intelligence-Collection-Plannar) for updates.
+&copy; 2024 @tabalizer. Visit the [GitHub repository](https://github.com/tabalizer/Intelligence-Collection-Plannar) for updates.
 
 ---
 
